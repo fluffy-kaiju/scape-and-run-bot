@@ -1,27 +1,23 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Rcon } from 'rcon-client';
-
-interface IPhase {
-  currentPhase: number;
-  totalPoints: number;
-  pointRequiredForTheNextPhase: number;
-  phaseCooldown: number;
-  currentParasiteMob: number;
-  progress: number;
-}
+import { ConfigService } from '@nestjs/config';
+import { Rcon, RconOptions } from 'rcon-client';
 
 @Injectable()
 export class AppService implements OnModuleInit {
+  constructor(private config: ConfigService) {}
+
   private readonly log = new Logger(AppService.name);
 
   private client;
 
   async onModuleInit() {
+    const config: RconOptions = {
+      host: this.config.get<string>('HOST'),
+      port: this.config.get<number>('PORT'),
+      password: this.config.get<string>('PASSWD'),
+    };
     this.log.debug('Try to connect to the RCON');
-    this.client = await Rcon.connect({
-      host: '10.0.1.11',
-      password: 'TheBigBigThiccPasswordOfYourMother',
-    });
+    this.client = await Rcon.connect(config);
     await this.tell('Bot connected!');
   }
 
@@ -84,10 +80,6 @@ export class AppService implements OnModuleInit {
     return res;
   }
 
-  async checkStatus() {
-    // const phases = await this.getPhases();
-  }
-
   private phase: IPhase;
   //TODO #1
   /**
@@ -102,56 +94,31 @@ export class AppService implements OnModuleInit {
    *    message: `Phase progression at 80 percent!!!`,
    * })
    */
-  private checkxMinJobs = new Map<number, boolean>();
+  private jobsList: IJobs<any>[];
   private lastLvl: number = 0;
 
-  private checkXMin() {
-    this.checkxMinJobs.forEach((skip, min) => {
-      if (skip) {
-        return;
-      }
-      this.log.debug(skip);
-      this.log.debug(min);
-      if (this.phase.phaseCooldown < min * 60) {
-        this.tell(`Left less than ${this.phase.phaseCooldown}s of cooldown!`);
-        this.tell(`Current phase: ${this.phase.currentPhase}`);
-        this.tell(`Progress     : ${this.phase.progress}%`);
-
-        this.checkxMinJobs.set(min, true);
-      }
-    });
-  }
-
-  private setCheckXMinCooldown(min: number) {
-    this.checkxMinJobs.set(min, false);
-  }
-
   async start() {
-    this.setCheckXMinCooldown(1);
-    this.setCheckXMinCooldown(3);
-    this.setCheckXMinCooldown(5);
-    this.setCheckXMinCooldown(10);
-    this.setCheckXMinCooldown(16);
-
     this.timeout = setInterval(async () => {
       this.log.verbose('Starting phase check');
       this.phase = await this.getPhases();
-      if (this.lastLvl !== this.phase.currentPhase) {
-        this.log.debug(
-          `Lvl as changed from ${this.lastLvl} to ${this.phase.currentPhase}`,
-        );
-      }
-
-      this.checkXMin();
 
       this.log.debug(`Actual progress ${this.phase.progress}`);
       this.log.debug(`Actual phase ${this.phase.currentPhase}`);
       this.log.debug(`Actual cooldown ${this.phase.phaseCooldown} s`);
-
-      this.checkxMinJobs.forEach((val, key) => {
-        this.log.warn(key);
-        this.log.warn(val);
-      });
     }, this.interval);
   }
+}
+
+interface IPhase {
+  currentPhase: number;
+  totalPoints: number;
+  pointRequiredForTheNextPhase: number;
+  phaseCooldown: number;
+  currentParasiteMob: number;
+  progress: number;
+}
+
+interface IJobs<T> {
+  func: (arg: T) => null;
+  arg: T;
 }
