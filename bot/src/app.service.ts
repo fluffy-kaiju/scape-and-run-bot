@@ -130,7 +130,12 @@ export class AppService implements OnModuleInit {
 
   private checkAlertRemainCooldown() {
     if (this.phase.phaseCooldown) {
-      this.isCooldown = true;
+      if (!this.isCooldown) {
+        this.isCooldown = true;
+        this.tell(
+          `New cooldown started! ${this.phase.phaseCooldown} seconds left!`,
+        );
+      }
     } else {
       this.isCooldown = false;
       this.cooldownAlertList.forEach((alert, index, self) => {
@@ -155,6 +160,10 @@ export class AppService implements OnModuleInit {
     }
   }
 
+  private lastSummaryUpdate = 0;
+  private lastPhase = 0;
+  private lastPoints = 0;
+
   async start() {
     this.setAlertRemainCooldown(300, '5 minute of cooldown left');
     this.setAlertRemainCooldown(120, '2 minute of cooldown left');
@@ -163,9 +172,36 @@ export class AppService implements OnModuleInit {
 
     this.initAlertRemainCooldown();
 
+    //TODO move this to a job queue
+
+    this.phase = await this.getPhases();
+    this.lastPoints = this.phase.totalPoints;
+
     this.timeout = setInterval(async () => {
       this.log.verbose('Starting phase check');
       this.phase = await this.getPhases();
+
+      // TODO move this to a job queue
+      if (new Date().getTime() - this.lastSummaryUpdate > 1000 * 60 * 5) {
+        this.lastSummaryUpdate = new Date().getTime();
+        await this.tell('Summary (next one in 5min):');
+
+        await this.tell(
+          `Phase ${this.phase.currentPhase} - ${this.phase.progress}%`,
+        );
+
+        await this.tell(
+          `Points: ${this.phase.totalPoints} / ${this.phase.pointRequiredForTheNextPhase}`,
+        );
+        await this.tell(
+          `The last 5min : ${this.phase.totalPoints - this.lastPoints} points`,
+        );
+
+        await this.tell(`Cooldown: ${this.phase.phaseCooldown} seconds`);
+        await this.tell(
+          `Current Parasite Mob: ${this.phase.currentParasiteMob}`,
+        );
+      }
 
       this.log.verbose(
         `There is a cooldown ?: ${this.isCooldown}`,
