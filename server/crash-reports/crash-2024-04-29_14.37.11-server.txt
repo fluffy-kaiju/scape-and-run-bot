@@ -1,0 +1,136 @@
+---- Minecraft Crash Report ----
+
+WARNING: coremods are present:
+  SecurityCraftLoadingPlugin ([1.12.2] SecurityCraft v1.9.6.jar)
+  PregenHooks (Chunk-Pregenerator-1.12.2-4.4.5.jar)
+  SpartanWeaponry-MixinLoader (SpartanWeaponry-1.12.2-1.5.3.jar)
+Contact their authors BEFORE contacting forge
+
+// Quite honestly, I wouldn't worry myself about that.
+
+Time: 4/29/24 2:37 PM
+Description: Ticking entity
+
+java.lang.NullPointerException: Ticking entity
+	at com.oblivioussp.spartanweaponry.event.EventHandlerCommon.onLivingHurt(EventHandlerCommon.java:86)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_59_EventHandlerCommon_onLivingHurt_LivingHurtEvent.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:90)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:182)
+	at net.minecraftforge.common.ForgeHooks.onLivingHurt(ForgeHooks.java:604)
+	at net.minecraft.entity.EntityLivingBase.func_70665_d(EntityLivingBase.java:1410)
+	at net.smileycorp.hordes.common.entities.EntityZombiePlayer.func_190730_o(EntityZombiePlayer.java:105)
+	at net.minecraft.entity.monster.EntityZombie.func_70636_d(EntityZombie.java:191)
+	at net.minecraft.entity.EntityLivingBase.func_70071_h_(EntityLivingBase.java:2179)
+	at net.minecraft.entity.EntityLiving.func_70071_h_(EntityLiving.java:295)
+	at net.minecraft.entity.monster.EntityMob.func_70071_h_(EntityMob.java:50)
+	at net.minecraft.world.World.func_72866_a(World.java:1996)
+	at net.minecraft.world.WorldServer.func_72866_a(WorldServer.java:832)
+	at net.minecraft.world.World.func_72870_g(World.java:1958)
+	at net.minecraft.world.World.func_72939_s(World.java:1762)
+	at net.minecraft.world.WorldServer.func_72939_s(WorldServer.java:613)
+	at net.minecraft.server.MinecraftServer.func_71190_q(MinecraftServer.java:767)
+	at net.minecraft.server.dedicated.DedicatedServer.func_71190_q(DedicatedServer.java:397)
+	at net.minecraft.server.MinecraftServer.func_71217_p(MinecraftServer.java:668)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:526)
+	at java.lang.Thread.run(Thread.java:748)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Server thread
+Stacktrace:
+	at com.oblivioussp.spartanweaponry.event.EventHandlerCommon.onLivingHurt(EventHandlerCommon.java:86)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler_59_EventHandlerCommon_onLivingHurt_LivingHurtEvent.invoke(.dynamic)
+	at net.minecraftforge.fml.common.eventhandler.ASMEventHandler.invoke(ASMEventHandler.java:90)
+	at net.minecraftforge.fml.common.eventhandler.EventBus.post(EventBus.java:182)
+	at net.minecraftforge.common.ForgeHooks.onLivingHurt(ForgeHooks.java:604)
+	at net.minecraft.entity.EntityLivingBase.func_70665_d(EntityLivingBase.java:1410)
+	at net.smileycorp.hordes.common.entities.EntityZombiePlayer.func_190730_o(EntityZombiePlayer.java:105)
+	at net.minecraft.entity.monster.EntityZombie.func_70636_d(EntityZombie.java:191)
+	at net.minecraft.entity.EntityLivingBase.func_70071_h_(EntityLivingBase.java:2179)
+	at net.minecraft.entity.EntityLiving.func_70071_h_(EntityLiving.java:295)
+	at net.minecraft.entity.monster.EntityMob.func_70071_h_(EntityMob.java:50)
+	at net.minecraft.world.World.func_72866_a(World.java:1996)
+	at net.minecraft.world.WorldServer.func_72866_a(WorldServer.java:832)
+	at net.minecraft.world.World.func_72870_g(World.java:1958)
+
+-- Entity being ticked --
+Details:
+	Entity Type: hordes:zombie_player (net.smileycorp.hordes.common.entities.EntityZombiePlayer)
+	Entity ID: 1608141
+	Entity Name: L3pty5
+	Entity's Exact location: 334.70, 64.00, 174.30
+	Entity's Block location: World: (334,64,174), Chunk: (at 14,4,14 in 20,10; contains blocks 320,0,160 to 335,255,175), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,0,0 to 511,255,511)
+	Entity's Momentum: 0.00, -0.08, 0.00
+	Entity's Passengers: []
+	Entity's Vehicle: ~~ERROR~~ NullPointerException: null
+Stacktrace:
+	at net.minecraft.world.World.func_72939_s(World.java:1762)
+	at net.minecraft.world.WorldServer.func_72939_s(WorldServer.java:613)
+
+-- Affected level --
+Details:
+	Level name: world
+	All players: 3 total; [EntityPlayerMP['FLOP_cesar'/549087, l='world', x=332.03, y=64.00, z=176.17], EntityPlayerMP['Fluffy_Kaiju'/1468708, l='world', x=292.57, y=10.00, z=101.79], EntityPlayerMP['L3pty5'/516, l='world', x=196.50, y=64.00, z=229.50]]
+	Chunk stats: ServerChunkCache: 759 Drop: 0
+	Level seed: 8088862822988766219
+	Level generator: ID 00 - default, ver 1. Features enabled: true
+	Level generator options: 
+	Level spawn location: World: (200,64,232), Chunk: (at 8,4,8 in 12,14; contains blocks 192,0,224 to 207,255,239), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,0,0 to 511,255,511)
+	Level time: 122421 game time, 120737 day time
+	Level dimension: 0
+	Level storage version: 0x04ABD - Anvil
+	Level weather: Rain time: 34559 (now: false), thunder time: 46701 (now: false)
+	Level game mode: Game mode: survival (ID 0). Hardcore: false. Cheats: false
+Stacktrace:
+	at net.minecraft.server.MinecraftServer.func_71190_q(MinecraftServer.java:767)
+	at net.minecraft.server.dedicated.DedicatedServer.func_71190_q(DedicatedServer.java:397)
+	at net.minecraft.server.MinecraftServer.func_71217_p(MinecraftServer.java:668)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:526)
+	at java.lang.Thread.run(Thread.java:748)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.12.2
+	Operating System: Linux (amd64) version 5.4.0-174-generic
+	Java Version: 1.8.0_312, Temurin
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode), Temurin
+	Memory: 488864296 bytes (466 MB) / 1291845632 bytes (1232 MB) up to 7179075584 bytes (6846 MB)
+	JVM Flags: 2 total; -Xms128M -XX:MaxRAMPercentage=95.0
+	IntCache: cache: 0, tcache: 0, allocated: 12, tallocated: 94
+	FML: MCP 9.42 Powered by Forge 14.23.5.2860 17 mods loaded, 17 mods active
+	States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored
+
+	| State  | ID                 | Version                   | Source                               | Signature                                |
+	|:------ |:------------------ |:------------------------- |:------------------------------------ |:---------------------------------------- |
+	| LCHIJA | minecraft          | 1.12.2                    | minecraft.jar                        | None                                     |
+	| LCHIJA | mcp                | 9.42                      | minecraft.jar                        | None                                     |
+	| LCHIJA | FML                | 8.0.99.99                 | server.jar                           | e3c3d50c7c986df74c645c0ac54639741c90a557 |
+	| LCHIJA | forge              | 14.23.5.2860              | server.jar                           | e3c3d50c7c986df74c645c0ac54639741c90a557 |
+	| LCHIJA | securitycraft      | v1.9.6                    | [1.12.2] SecurityCraft v1.9.6.jar    | None                                     |
+	| LCHIJA | atlaslib           | 1.1.5a                    | Atlas-Lib-1.12.2-1.1.5a.jar          | None                                     |
+	| LCHIJA | chunkpregenerator  | 4.4.0                     | Chunk-Pregenerator-1.12.2-4.4.5.jar  | None                                     |
+	| LCHIJA | healthbar          | 1.0.7                     | HealthBar-1.12-1.0.7-23.jar          | None                                     |
+	| LCHIJA | hordes             | 1.1.5                     | The-Hordes-1.12.2-1.1.6.jar          | None                                     |
+	| LCHIJA | jei                | 4.16.1.301                | jei_1.12.2-4.16.1.301.jar            | None                                     |
+	| LCHIJA | nocubessrparmory   | 3.0.0                     | NoCubes_SRP_Combat_Addon_3.0.0.jar   | None                                     |
+	| LCHIJA | nocubessrpnests    | 3.0.0                     | NoCubes_SRP_Nests_Addon_3.0.0.jar    | None                                     |
+	| LCHIJA | nocubessrpsurvival | 3.0.0                     | NoCubes_SRP_Survival_Addon_3.0.0.jar | None                                     |
+	| LCHIJA | hbm                | NTM-Extended-1.12.2-2.0.2 | NTM-Extended-1.12.2-2.0.2.jar        | None                                     |
+	| LCHIJA | spartanshields     | 1.5.5                     | SpartanShields-1.12.2-1.5.5.jar      | None                                     |
+	| LCHIJA | spartanweaponry    | 1.5.3                     | SpartanWeaponry-1.12.2-1.5.3.jar     | None                                     |
+	| LCHIJA | srparasites        | 1.9.12                    | SRParasites-1.12.2v1.9.12.jar        | None                                     |
+
+	Loaded coremods (and transformers): 
+SecurityCraftLoadingPlugin ([1.12.2] SecurityCraft v1.9.6.jar)
+  
+PregenHooks (Chunk-Pregenerator-1.12.2-4.4.5.jar)
+  pregenerator.config.impl.internal.CarbonConfigHooks
+SpartanWeaponry-MixinLoader (SpartanWeaponry-1.12.2-1.5.3.jar)
+  
+	Profiler Position: N/A (disabled)
+	Player Count: 3 / 20; [EntityPlayerMP['FLOP_cesar'/549087, l='world', x=332.03, y=64.00, z=176.17], EntityPlayerMP['Fluffy_Kaiju'/1468708, l='world', x=292.57, y=10.00, z=101.79], EntityPlayerMP['L3pty5'/516, l='world', x=196.50, y=64.00, z=229.50]]
+	Is Modded: Definitely; Server brand changed to 'fml,forge'
+	Type: Dedicated Server (map_server.txt)

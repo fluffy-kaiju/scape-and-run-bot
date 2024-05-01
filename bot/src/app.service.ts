@@ -1,27 +1,23 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Rcon } from 'rcon-client';
-
-interface IPhase {
-  currentPhase: number;
-  totalPoints: number;
-  pointRequiredForTheNextPhase: number;
-  phaseCooldown: number;
-  currentParasiteMob: number;
-  progress: number;
-}
+import { ConfigService } from '@nestjs/config';
+import { Rcon, RconOptions } from 'rcon-client';
 
 @Injectable()
 export class AppService implements OnModuleInit {
+  constructor(private config: ConfigService) {}
+
   private readonly log = new Logger(AppService.name);
 
   private client;
 
   async onModuleInit() {
+    const config: RconOptions = {
+      host: this.config.get<string>('HOST'),
+      port: this.config.get<number>('PORT'),
+      password: this.config.get<string>('PASSWD'),
+    };
     this.log.debug('Try to connect to the RCON');
-    this.client = await Rcon.connect({
-      host: '10.0.1.11',
-      password: 'TheBigBigThiccPasswordOfYourMother',
-    });
+    this.client = await Rcon.connect(config);
     await this.tell('Bot connected!');
   }
 
@@ -36,9 +32,6 @@ export class AppService implements OnModuleInit {
     this.log.verbose(`Executing ${command}`);
     return await this.client.send(command);
   }
-
-  private timeout;
-  private interval = 1000 * 5;
 
   /**
    * {
@@ -58,7 +51,7 @@ export class AppService implements OnModuleInit {
     const getPhasesRes: string = await this.client.send(
       '/srpevolution getphase',
     );
-    this.log.verbose(getPhasesRes);
+    // this.log.verbose(getPhasesRes);
     const pattern: RegExp = /->\s*(.*?):\s*(.*)/g;
     const data: { [key: string]: string } = {};
     let match: RegExpExecArray | null;
@@ -67,8 +60,6 @@ export class AppService implements OnModuleInit {
       const [, key, value] = match;
       data[key.trim()] = value.trim();
     }
-
-    this.log.verbose(data);
 
     const res: IPhase = {
       totalPoints: parseInt(data['Total points']),
@@ -81,14 +72,14 @@ export class AppService implements OnModuleInit {
       progress: parseInt(data['Progress']),
     };
 
+    this.log.verbose(res);
     return res;
   }
 
-  async checkStatus() {
-    // const phases = await this.getPhases();
-  }
-
   private phase: IPhase;
+  private timeout;
+  private interval = 1000 * 1;
+
   //TODO #1
   /**
    * Make multiple job queue for each phase data
@@ -102,56 +93,94 @@ export class AppService implements OnModuleInit {
    *    message: `Phase progression at 80 percent!!!`,
    * })
    */
-  private checkxMinJobs = new Map<number, boolean>();
+
+  //   private jobsList: IJobs<any>[];
+  private isCooldown = false;
+  private cooldownAlertList: { s: number; m: string; done: boolean }[] = [];
   private lastLvl: number = 0;
 
-  private checkXMin() {
-    this.checkxMinJobs.forEach((skip, min) => {
-      if (skip) {
-        return;
-      }
-      this.log.debug(skip);
-      this.log.debug(min);
-      if (this.phase.phaseCooldown < min * 60) {
-        this.tell(`Left less than ${this.phase.phaseCooldown}s of cooldown!`);
-        this.tell(`Current phase: ${this.phase.currentPhase}`);
-        this.tell(`Progress     : ${this.phase.progress}%`);
+  setAlertRemainCooldown(
+    second: number,
+    message: string = `Less than ${second}s of cooldown left!`,
+  ) {
+    this.cooldownAlertList.push({
+      s: second,
+      m: message,
+      done: false,
+    });
 
-        this.checkxMinJobs.set(min, true);
-      }
+    this.cooldownAlertList.sort((a, b) => {
+      return b.s - a.s;
     });
   }
 
-  private setCheckXMinCooldown(min: number) {
-    this.checkxMinJobs.set(min, false);
+  private findCurrentAlert() {
+    const currentAlert = this.cooldownAlertList.find((a) => {
+      //   this.log.verbose(`${a.s} < ${this.phase.phaseCooldown}`);
+      if (a.done) {
+        return false;
+      }
+      return this.phase.phaseCooldown <= a.s;
+    });
+    this.log.verbose(
+      `Try to find current alert: ${currentAlert ? JSON.stringify(currentAlert) : 'none'}`,
+    );
+    return currentAlert;
+  }
+
+  private checkAlertRemainCooldown() {
+    if (this.phase.phaseCooldown) {
+      this.isCooldown = true;
+    } else {
+      this.isCooldown = false;
+      this.cooldownAlertList.forEach((alert, index, self) => {
+        self[index].done = false;
+      });
+      return;
+    }
+    const currentAlert = this.findCurrentAlert();
+    if (currentAlert !== undefined) {
+      currentAlert.done = true;
+      this.log.error(`${currentAlert.s}s left!!! ${currentAlert.m}`);
+      this.tell(currentAlert.m);
+    }
+  }
+
+  private async initAlertRemainCooldown() {
+    const phase = await this.getPhases();
+    if (!phase.phaseCooldown) {
+      this.isCooldown = false;
+    } else {
+      this.isCooldown = true;
+    }
   }
 
   async start() {
-    this.setCheckXMinCooldown(1);
-    this.setCheckXMinCooldown(3);
-    this.setCheckXMinCooldown(5);
-    this.setCheckXMinCooldown(10);
-    this.setCheckXMinCooldown(16);
+    this.setAlertRemainCooldown(300, '5 minute of cooldown left');
+    this.setAlertRemainCooldown(120, '2 minute of cooldown left');
+    this.setAlertRemainCooldown(60, '1 minute of cooldown left');
+    this.setAlertRemainCooldown(30, '30 seconds of cooldown left!!!!!');
+
+    this.initAlertRemainCooldown();
 
     this.timeout = setInterval(async () => {
       this.log.verbose('Starting phase check');
       this.phase = await this.getPhases();
-      if (this.lastLvl !== this.phase.currentPhase) {
-        this.log.debug(
-          `Lvl as changed from ${this.lastLvl} to ${this.phase.currentPhase}`,
-        );
-      }
 
-      this.checkXMin();
-
-      this.log.debug(`Actual progress ${this.phase.progress}`);
-      this.log.debug(`Actual phase ${this.phase.currentPhase}`);
-      this.log.debug(`Actual cooldown ${this.phase.phaseCooldown} s`);
-
-      this.checkxMinJobs.forEach((val, key) => {
-        this.log.warn(key);
-        this.log.warn(val);
-      });
+      this.log.verbose(
+        `There is a cooldown ?: ${this.isCooldown}`,
+        this.phase.phaseCooldown,
+      );
+      this.checkAlertRemainCooldown();
     }, this.interval);
   }
+}
+
+interface IPhase {
+  currentPhase: number;
+  totalPoints: number;
+  pointRequiredForTheNextPhase: number;
+  phaseCooldown: number;
+  currentParasiteMob: number;
+  progress: number;
 }
