@@ -1,6 +1,8 @@
 # scape-and-run-bot
 
-A Scape and Run: Parasites dicord webhook to alert phases
+A Scape and Run: Parasites discord webhook to alert phases
+
+## Dev
 
 To test the RCON use this
 
