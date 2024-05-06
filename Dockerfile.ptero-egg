@@ -11,8 +11,4 @@ ENV  USER=container HOME=/home/container
 
 RUN apk add --no-cache git
 
-RUN git clone https://github.com/fluffy-kaiju/scape-and-run-bot.git bot
-
-RUN npm ci
-
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
