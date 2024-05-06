@@ -1,4 +1,4 @@
-FROM node:20-alpine As production
+FROM node:20-alpine
 
 MAINTAINER Fluffy_Kaiju, <contact@dreemcloud.net>
 
