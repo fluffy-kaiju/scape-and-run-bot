@@ -11,4 +11,6 @@ ENV  USER=container HOME=/home/container
 
 RUN apk add --no-cache git
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+COPY ./entrypoint.sh /entrypoint.sh
+
+CMD ["/bin/bash", "/entrypoint.sh"]
