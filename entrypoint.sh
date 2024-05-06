@@ -1,7 +1,7 @@
 #!/bin/bash
 cd /home/container
 
-echo Downloading Bot
+echo Downloading Bot >> log
 
 git clone https://github.com/fluffy-kaiju/scape-and-run-bot.git bot
 

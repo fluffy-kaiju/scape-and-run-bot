@@ -4,12 +4,13 @@ MAINTAINER Fluffy_Kaiju, <contact@dreemcloud.net>
 
 RUN adduser --disabled-password --home /home/container container
 
-WORKDIR /home/container
-
 USER container
+
 ENV  USER=container HOME=/home/container
 
 RUN apk add --no-cache git
+
+WORKDIR /home/container
 
 COPY ./entrypoint.sh /entrypoint.sh
 
