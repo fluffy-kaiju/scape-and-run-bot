@@ -1,7 +1,5 @@
 FROM node:alpine3.18 as Build
 
-MAINTAINER Fluffy_Kaiju, <contact@dreemcloud.net>
-
 RUN apk add --no-cache git bash
 
 COPY bot/ /tmp/bot
@@ -15,12 +13,12 @@ FROM node:alpine3.18
 
 RUN apk add --no-cache bash
 
-RUN mkdir -p /home/container
-RUN adduser --disabled-password --home /home/container container
+RUN mkdir -p /mnt/server
+RUN adduser --disabled-password --home /mnt/server container
 USER container
-ENV  USER=container HOME=/home/container
+ENV  USER=container HOME=/mnt/server
 
-WORKDIR /home/container
+WORKDIR /mnt/server
 
 COPY --from=Build --chown=container:container /tmp/bot/dist/ dist/
 COPY --from=Build --chown=container:container /tmp/bot/node_modules/ node_modules/
