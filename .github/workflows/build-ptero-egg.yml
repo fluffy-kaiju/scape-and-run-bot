@@ -24,6 +24,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
+        file: ./Dockerfile.ptero-egg
         push: true
         tags: ghcr.io/${{ github.repository}}-egg:latest
-        dockerfile: ./Dockerfile.ptero-egg
