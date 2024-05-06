@@ -1,28 +1,31 @@
-FROM node:alpine3.18
+FROM node:alpine3.18 as Build
 
 MAINTAINER Fluffy_Kaiju, <contact@dreemcloud.net>
 
 RUN apk add --no-cache git bash
 
+COPY bot/ /tmp/bot
+
+WORKDIR /tmp/bot
+
+RUN npm ci
+RUN npm run build
+
+FROM node:alpine3.18
+
+RUN apk add --no-cache bash
+
 RUN mkdir -p /home/container
-
 RUN adduser --disabled-password --home /home/container container
-
-# RUN mkdir -p /etc/sudoers.d && echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/flatdeb && chmod 0440 /etc/sudoers.d/flatdeb
-
 USER container
-
 ENV  USER=container HOME=/home/container
 
 WORKDIR /home/container
 
-RUN git clone https://github.com/fluffy-kaiju/scape-and-run-bot.git
+COPY --from=Build --chown=container:container /tmp/bot/dist/ dist/
+COPY --from=Build --chown=container:container /tmp/bot/node_modules/ node_modules/
 
-WORKDIR /home/container/scape-and-run-bot/bot
-
-RUN npm ci
-
-RUN npm run build
+RUN ls -la
 
 COPY ./entrypoint.sh /entrypoint.sh
 
