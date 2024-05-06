@@ -23,3 +23,14 @@ java -Xms128M -XX:MaxRAMPercentage=95.0 -Dterminal.jline=false -Dterminal.ansi=t
 ```
 HOST=192.168.129.7 PASSWD=test npm run start:dev
 ```
+
+Build and run
+
+```
+docker build --no-cache --rm -f Dockerfile -t srpbot:latest "." --progress plain
+```
+
+```
+docker run srpbot:latest
+docker run --always -e HOST=<host> -e PASSWD=<passwd>  srpbot:latest
+```
