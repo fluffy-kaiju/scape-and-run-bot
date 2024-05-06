@@ -25,5 +25,5 @@ jobs:
       with:
         context: .
         push: true
-        tags: ghcr.io/${{ github.repository}}:latest
+        tags: ghcr.io/${{ github.repository}}-egg:latest
         dockerfile: ./Dockerfile.ptero-egg
