@@ -1,29 +1,13 @@
-FROM node:alpine3.18 as Build
+FROM node:alpine3.18 
 
 RUN apk add --no-cache git bash
 
-COPY bot/ /tmp/bot
+RUN mkdir -p /home/container
+RUN adduser --disabled-password --home /home/container container
 
-WORKDIR /tmp/bot
-
-RUN npm ci
-RUN npm run build
-
-FROM node:alpine3.18
-
-RUN apk add --no-cache bash
-
-RUN mkdir -p /mnt/server
-RUN adduser --disabled-password --home /mnt/server container
-USER container
-ENV  USER=container HOME=/mnt/server
-
-WORKDIR /mnt/server
-
-COPY --from=Build --chown=container:container /tmp/bot/dist/ dist/
-COPY --from=Build --chown=container:container /tmp/bot/node_modules/ node_modules/
-
-RUN ls -la
+USER        container
+ENV         USER=container HOME=/home/container
+WORKDIR     /home/container
 
 COPY ./entrypoint.sh /entrypoint.sh
 
