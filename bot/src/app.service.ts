@@ -25,9 +25,9 @@ export class AppService implements OnModuleInit {
     return 'Hello World!';
   }
 
-  private async tell(msg: string, displayName: string = 'SaRP_Bot') {
+  private async tell(msg: string, prefix: string = '[SaRP_Bot]: ') {
     const command =
-      '/tellraw @a ' + JSON.stringify({ text: `[${displayName}]: ${msg}` });
+      '/tellraw @a ' + JSON.stringify({ text: `${prefix}${msg}` });
 
     this.log.verbose(`Executing ${command}`);
     return await this.client.send(command);
@@ -184,23 +184,33 @@ export class AppService implements OnModuleInit {
       // TODO move this to a job queue
       if (new Date().getTime() - this.lastSummaryUpdate > 1000 * 60 * 5) {
         this.lastSummaryUpdate = new Date().getTime();
+
+        await this.tell('', '');
         await this.tell('Summary (next one in 5min):');
+
+        await this.tell('', '');
 
         await this.tell(
           `Phase ${this.phase.currentPhase} - ${this.phase.progress}%`,
+          '',
         );
 
         await this.tell(
           `Points: ${this.phase.totalPoints} / ${this.phase.pointRequiredForTheNextPhase}`,
+          '',
         );
         await this.tell(
           `The last 5min : ${this.phase.totalPoints - this.lastPoints} points`,
+          '',
         );
 
-        await this.tell(`Cooldown: ${this.phase.phaseCooldown} seconds`);
+        await this.tell(`Cooldown: ${this.phase.phaseCooldown} seconds`, '');
         await this.tell(
           `Current Parasite Mob: ${this.phase.currentParasiteMob}`,
+          '',
         );
+        await this.tell('', '');
+        await this.tell('', '');
       }
 
       this.log.verbose(
